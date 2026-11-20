@@ -1,63 +1,73 @@
 # How to Run the Wedding Project Locally
 
+This project consists of 3 independent applications that work together:
+1. **Backend API** (Node.js + Express + MongoDB Atlas)
+2. **Admin Dashboard** (React + Vite + Tailwind CSS)
+3. **Guest-Facing Wedding Website** (Static HTML/CSS/JS)
+
+---
+
 ## 1. Prerequisites
-- Node.js (v18+)
-- MongoDB Atlas cluster (already configured in `wedding-backend/.env`)
+- **Node.js** (v18 or higher)
+- **Terminal** (macOS zsh/bash)
+- MongoDB Atlas connection string is already configured in `wedding-backend/.env`.
 
 ---
 
-## 2. Running the Backend API
+## 2. Start the Applications (3 Terminal Tabs)
 
-1. Navigate to the backend directory:
-   ```bash
-   cd wedding-backend
-   ```
-2. Start the backend server:
-   ```bash
-   npm start
-   ```
-   *(Or for auto-reload during development: `npm run dev`)*
-
-3. The backend runs at:
-   - Base URL: `http://localhost:5000`
-   - Health check: `http://localhost:5000/api/health`
-
----
-
-## 3. Running the Admin Dashboard
-
-1. In a new terminal tab, navigate to the dashboard directory:
-   ```bash
-   cd wedding-dashboard
-   ```
-2. Start the Vite dev server:
-   ```bash
-   npm run dev
-   ```
-
-3. Open your browser at:
-   - `http://localhost:5173`
-
-4. Log in using your administrator credentials:
-   - **Username:** `adityamollick9_db_user`
-   - **Password:** `CyQknShhsYn79zuw`
-
----
-
-## 4. Running the Guest-Facing Frontend
-
-1. Open `frontend/index.html` in your browser (or use VS Code Live Server at port 5500).
-2. `frontend/config.js` is already configured to point to `http://localhost:5000`.
-3. Fill out the RSVP form and submit — your response and blessing will be stored live in MongoDB Atlas and immediately displayed in the Admin Dashboard!
-
----
-
-## 5. Running Automated Tests
-
-To run the complete test suite verifying database connectivity, validation, authentication, and E2E flows:
+### Terminal 1: Start the Backend API (Port 5001)
 ```bash
 cd wedding-backend
-npm test
-npm run test:e2e
+npm start
 ```
+> **Note:** The backend runs on port `5001` (to prevent conflicts with macOS AirPlay on port 5000).  
+> **Health Check:** Open [http://localhost:5001/api/health](http://localhost:5001/api/health) to verify `status: ok` and `database: connected`.
 
+---
+
+### Terminal 2: Start the Admin Dashboard (Port 5173)
+```bash
+cd wedding-dashboard
+npm run dev
+```
+> **Access Dashboard:** Open [http://localhost:5173](http://localhost:5173) in your browser.  
+> **Admin Login Credentials:**
+> - **Primary Admin:**
+>   - Username: `adityamollick9_db_user`
+>   - Password: `CyQknShhsYn79zuw`
+> - **Second Admin:**
+>   - Username: `TamalikaKeya`
+>   - Password: `Tamalika12345`
+
+---
+
+### Terminal 3: Start the Guest Wedding Frontend (Port 5500)
+```bash
+python3 -m http.server 5500 --directory frontend
+```
+*(Or right-click `frontend/index.html` in VS Code and select **"Open with Live Server"**)*
+
+> **Guest Invitation Website:** Open [http://localhost:5500](http://localhost:5500) in your browser.
+
+---
+
+## 3. End-to-End Verification
+1. Open the **Guest Frontend** at [http://localhost:5500](http://localhost:5500).
+2. Scroll to the **RSVP & Blessings** section, fill in your details, select attendance and ceremonies, write a blessing, and click **"Send with Blessings"**.
+3. Open the **Admin Dashboard** at [http://localhost:5173](http://localhost:5173), sign in, and verify:
+   - Real-time **Overview** statistics increment immediately.
+   - The submission appears in the **RSVP Records** table.
+   - The blessing appears in the private **Guest Blessings** tab.
+
+---
+
+## 4. Run Automated Test Suites
+To verify all database connections, validations, authentication, and security:
+```bash
+cd wedding-backend
+npm test                  # 12 unit & integration tests
+npm run test:e2e          # 9 end-to-end full flow tests
+npm run test:admin        # 5 multi-admin login & permission tests
+npm run test:resilience   # 4 edge case & search injection tests
+```

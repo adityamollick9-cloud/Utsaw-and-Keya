@@ -27,8 +27,8 @@ if (process.env.NODE_ENV !== 'test') {
 
 // CORS Configuration
 const allowedOrigins = [
-  ...(process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(',').map(s => s.trim()) : []),
-  ...(process.env.DASHBOARD_ORIGIN ? process.env.DASHBOARD_ORIGIN.split(',').map(s => s.trim()) : []),
+  ...(process.env.FRONTEND_ORIGIN ? process.env.FRONTEND_ORIGIN.split(',').map(s => s.trim().replace(/\/+$/, '')) : []),
+  ...(process.env.DASHBOARD_ORIGIN ? process.env.DASHBOARD_ORIGIN.split(',').map(s => s.trim().replace(/\/+$/, '')) : []),
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:5500',
@@ -36,14 +36,15 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'http://localhost:8080'
-];
+].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (curl, mobile, server-side, local file://)
       if (!origin || origin === 'null') return callback(null, true);
-      if (allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+      const normalizedOrigin = origin.replace(/\/+$/, '');
+      if (allowedOrigins.includes(normalizedOrigin) || process.env.NODE_ENV === 'development') {
         return callback(null, true);
       }
       return callback(new Error(`CORS blocked request from origin: ${origin}`));
