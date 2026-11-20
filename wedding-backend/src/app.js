@@ -32,6 +32,7 @@ const allowedOrigins = [
   ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim().replace(/\/+$/, '')) : []),
   'https://utsaw-and-keya-frontend.vercel.app',
   'https://utsaw-and-keya.vercel.app',
+  'https://utsaw-and-keya-wedding-dashboard.vercel.app',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:5500',
@@ -47,7 +48,11 @@ app.use(
       // Allow requests with no origin (curl, mobile, server-side, local file://)
       if (!origin || origin === 'null') return callback(null, true);
       const normalizedOrigin = origin.replace(/\/+$/, '');
-      if (allowedOrigins.includes(normalizedOrigin) || process.env.NODE_ENV === 'development') {
+      if (
+        allowedOrigins.includes(normalizedOrigin) ||
+        /^https:\/\/utsaw-and-keya[a-z0-9-]*\.vercel\.app$/.test(normalizedOrigin) ||
+        process.env.NODE_ENV === 'development'
+      ) {
         return callback(null, true);
       }
       return callback(new Error(`CORS blocked request from origin: ${origin}`));
